@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="Huang Yangyi">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Huang Yangyi">
+    
+    <meta name="keywords" content="hexo,hexo-blog">
+    
+    <meta name="description" content="An underguaduate student of ZJU, majoring in CS">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>单目3D目标检测论文笔记 · huangyangyi&#39;s Blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon-hyy.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >huangyangyi&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">单目3D目标检测论文笔记</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>huangyangyi's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            单目3D目标检测论文笔记
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Computer Vision">Computer Vision</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">2.9k</span>Reading time: <span class="post-count reading-time">10 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2020/02/25</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="单目3D目标检测论文笔记"><a href="#单目3D目标检测论文笔记" class="headerlink" title="单目3D目标检测论文笔记"></a>单目3D目标检测论文笔记</h1><h2 id="Pseudo-LiDAR-from-Visual-Depth-Estimation"><a href="#Pseudo-LiDAR-from-Visual-Depth-Estimation" class="headerlink" title="Pseudo-LiDAR from Visual Depth Estimation"></a>Pseudo-LiDAR from Visual Depth Estimation</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>这篇文章最核心的观点在于认为导致基于单目/双目图像3D目标检测与基于LiDAR数据进行3D检测的效果差异的主要原因，并不在于数据的质量上（深度数据的精准程度等等），而是在于数据的表示方式上。提出的Pseudo-LiDAR将2D图像中得到的深度估计，按像素反投影到3D空间中，转换成3D点云的形式；再应用基于LiDAR数据（多视图、点云等）的检测方法进行检测。并对这个方法的实验效果进行了对比。</p>
+<h3 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h3><p>提到了LiDAR-based和Image-based的3D目标检测，以及基于双目/单目图像的深度检测。</p>
+<p>LiDAR-based的方法是这篇文章的inspiration，提到了将PointNet应用于2D目标检测中的每一个frustum(视锥体)proposal的frustum PointNet；用多视图来做3D检测的MV3D；转换成三维像素用3D卷积来做的VoxelNet；在图像和BEV上应用continuous convolutions的UberATG-ContFuse。</p>
+<p>单目深度估计提到了将多尺度的特征与有序性回归结合进行预测的DORN；双目提到了PSMNet。</p>
+<p>基于图像的3D目标检测可以成为LiDAR的一个替代；大部分方法都基于2D目标检测，然后加上一些额为的集合限制来得到3D proposals；有的用双目深度检测给每个像素找到一个3D坐标，然后把这个坐标作为一个额外的通道输入到2D检测的pipeline中或者用以抽取一些手动设计的特征。效果还不理想，可能是由于深度的表示方式不合适。</p>
+<h3 id="用LiDAR和Vision做3D检测的异同点"><a href="#用LiDAR和Vision做3D检测的异同点" class="headerlink" title="用LiDAR和Vision做3D检测的异同点"></a>用LiDAR和Vision做3D检测的异同点</h3><h4 id="LiDAR"><a href="#LiDAR" class="headerlink" title="LiDAR"></a>LiDAR</h4><ul>
+<li>价格比较昂贵，而且使用单一传感器有风险，需要临时能够替代的传感器确保安全和精度；</li>
+<li>数据是稀疏的深度数据，可以用3D点云表示，从多视图观察；</li>
+<li>深度误差小，相较于图像越远的物体深度估计的误差越大，LiDAR的深度估计是基于Time-of-Flight的，几乎是线性的误差；</li>
+<li>因为可以直接给出准确的坐标，所以检测的重点在于分类和确定3Dbbox</li>
+</ul>
+<h4 id="Vision"><a href="#Vision" class="headerlink" title="Vision"></a>Vision</h4><ul>
+<li>比较便宜，装多个摄像头也没问题，视频帧率高</li>
+<li>深度估计的误差大，且相较于图像越远的物体深度估计的误差越大（在图像上尺寸太小）</li>
+<li><p>在2D图像上连续的像素可能在3D空间中距离很远</p>
+</li>
+<li><p>检测的重点还在于深度估计的可靠性</p>
+</li>
+</ul>
+<h3 id="方法思路"><a href="#方法思路" class="headerlink" title="方法思路"></a>方法思路</h3><h4 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a>Pipeline</h4><p><img src="pipeline.png" alt="image-20200224175207428"></p>
+<ol>
+<li>通过深度检测从单目/双目图像中得到深度图</li>
+<li>将深度图中的像素反投影到3D空间中，得到Pseudo-LiDAR</li>
+<li>基于Pseudo-LiDAR做3D目标检测，得到3Dbbox和分类标签</li>
+</ol>
+<h4 id="深度检测"><a href="#深度检测" class="headerlink" title="深度检测"></a>深度检测</h4><p>文章用的是双目的深度估计，基于左右图像<script type="math/tex">I_l,I_r</script>，得到视差图<script type="math/tex">Y</script>，然后以一个图位参考图像，由改图水平方向的焦距<script type="math/tex">f_U</script>进行估计： <script type="math/tex">D(u,v)=\frac{f_U\times b}{Y(u,v)}</script>；也可以用单目深度估计替代。</p>
+<h4 id="生成Pseudo-LiDAR信号"><a href="#生成Pseudo-LiDAR信号" class="headerlink" title="生成Pseudo-LiDAR信号"></a>生成Pseudo-LiDAR信号</h4><p>原理是像素坐标系到相机坐标系的投影</p>
+<script type="math/tex; mode=display">z = D(u,v),\ x=\frac{(u-c_U)\times z}{f_U}, \ y=\frac{(v-c_V)\times z}{f_V}</script><p>最后得到点云形式的Pseudo-LiDAR信号，可以被转换到鸟瞰图或者其他方向的视图</p>
+<h4 id="LiDAR和pseudo-LiDAR的异同"><a href="#LiDAR和pseudo-LiDAR的异同" class="headerlink" title="LiDAR和pseudo-LiDAR的异同"></a>LiDAR和pseudo-LiDAR的异同</h4><p>因为要尽可能与现存的LiDAR pipeline相适应，所以要对pseudo-LiDAR信号进行一些处理。</p>
+<ul>
+<li>高度限制：真实的LiDAR只会有一定高度范围内的信号，所以按KITTI的标准只保留信号源上方1m之内的pseudo-LiDAR信号，而且因为KITTI是自动驾驶的情景，也不需要考虑上方的物体</li>
+<li>反射率：LiDAR还会检测到每个点的反射率，这里将反射率全部设为1</li>
+<li>真实LiDAR其实数据点更加稀疏一些，取决于雷达激光束路数；但是pseudo-LiDAR数据点数量和像素数量相当，这里保留这种差异</li>
+</ul>
+<p>两种信号的对应情况还是比较好的（蓝色点、绿色框pseudo-LiDAR； 黄色点、红色框LiDAR）：</p>
+<p><img src="vs.png" alt="image-20200224181750433"></p>
+<h4 id="3D目标检测"><a href="#3D目标检测" class="headerlink" title="3D目标检测"></a>3D目标检测</h4><p>这里用了两种不同的setup</p>
+<ol>
+<li>frustum PointNet：直接对3D点云形式的数据进行处理，将2D物体检测投影到3D上的一个frustum上，然后应用PointNet来对每个3D frustum抽取点集特征</li>
+<li>AVOD：从BEV来处理，把宽度和深度信息转换成2D上的两个维度，将高度作为一个通道；再通过AVOD将图像特征和BEV特征转换成3D proposals，然后再将两者融合用于box的分类和回归</li>
+</ol>
+<h4 id="数据表示方式的重要性"><a href="#数据表示方式的重要性" class="headerlink" title="数据表示方式的重要性"></a>数据表示方式的重要性</h4><p>这里说明了为什么他们认为pseudo-LiDAR在3D目标检测中必深度图更适合深度卷积网络。</p>
+<p>首先了考虑在图像和深度图上应用2D卷积的方法；2D卷积是基于两个假设的：</p>
+<ol>
+<li>图像的一个局部邻域是有意义的，网络应该关注图片的一块局部</li>
+<li>所有的邻域都能用一种一致的方法来处理</li>
+</ol>
+<p>但是对应第一点来说，二维图像上的局部只有所有像素都属于一个物体的时候，在物理上才是连续的；对于第二点，如果一个局部区域在物体边界上，两个在深度图上相邻的像素在三维空间中可能距离很远。所以文章认为现存的方法违反了这两个假设，不得不用类似于特征金字塔之类的方法来解决。与此同时，点云上的点和BEV上相邻的像素在物理上都是相近的。为了说明这点，文章用深度图和用11x11卷积处理后的深度图分别生成的pseudo-Lidar进行了比较，可以发现影响确实很大。</p>
+<p><img src="conv.png" alt="image-20200224185754058"></p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>具体细节略过</p>
+<h4 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h4><ol>
+<li>比较了单目的深度检测DORN和双目的深度检测PSMNet，发现前者需要差不多多十倍数据来训练，而且这种情况下仍然后者效果更好；这里说明双目的深度估计仍然是一个更好的方向</li>
+<li>比较将3维坐标值与RGB图像连接的MLF-stereo与本文方法，说明了pseudo-LiDAR表示形式的优越之处</li>
+<li><p>这张表说明了双目视差检测的精确度差异对最后的检测效果影响不大<img src="disparity.png" alt="image-20200224192238442"></p>
+</li>
+<li><p>行人和自行车的检测：IoU0.5下的AP比IoU0.7下的车的AP要低得多，是一个更加challenging的task</p>
+</li>
+</ol>
+<h3 id="Future-work"><a href="#Future-work" class="headerlink" title="Future work"></a>Future work</h3><ul>
+<li>更高分辨率的双目图像</li>
+<li>real-time，现在的方法一张图需要1s<ul>
+<li>一个可能的改进：先计算低分辨率的深度图，然后用高分辨率的去refine之前的结果</li>
+<li>model distillation，anytime prediction</li>
+</ul>
+</li>
+</ul>
+<h2 id="MonoGRNet-A-Geometric-Reasoning-Network-for-Monocular-3D-Object-Localization"><a href="#MonoGRNet-A-Geometric-Reasoning-Network-for-Monocular-3D-Object-Localization" class="headerlink" title="MonoGRNet: A Geometric Reasoning Network for Monocular 3D Object Localization"></a>MonoGRNet: A Geometric Reasoning Network for Monocular 3D Object Localization</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>由于图像投影时的集合信息损失，通过单独一张RGB图像定位3D空间中的目标是很有挑战性的。本文提出的MonoGRNet通过在观察到的2D投影还有未观察到的深度纬度进行几何推理来实现单目RGB图像3D空间定位。MonoGRNet由4个负责不同任务的子网络构成，分别是2D目标检测，实体深度估计(IDE)，3D定位以及局部角点回归。与每个像素都需要标注的像素级别的深度检测不同，本文用稀疏监督的方式直接预测目标3Dbbox的中心的深度。3D定位则通过估计水平维度和竖直维度上的位置进一步实现。最后，MonoGRNet通过利用全局上下文优化定位和3Dbbox进行联合学习。</p>
+<h3 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h3><ol>
+<li>提出了一种现金的实例级别的深度估计方法，在没有稠密深度数据的情况下直接预测ABBox-3D中心的深度，无论物体遮挡情况和截断情况如何</li>
+<li>一种先进的3D定位结构，能够探索2D图像中的丰富的特征表示方式，拓展到3D上下文中的几何推理</li>
+<li>一个通过联合优化协调2D、2.5D、3D空间内的物体定位的统一的网络，且具有很高的推理效率（0.06s一张图）</li>
+</ol>
+<h3 id="相关工作-1"><a href="#相关工作-1" class="headerlink" title="相关工作"></a>相关工作</h3><p>提到了2D、3D目标检测和单目深度检测。</p>
+<ul>
+<li>之前的3D检测工作中需要用到如语义分割、上下文先验或者与训练的视差估计模型来促进3D感知，而本文的方法只需要3Dbbox标注，且不需要其他网络辅助，故本文的模型更加轻量级且高效。</li>
+<li>像素级的深度估计有以下一些问题，所以本文提出的是基于稀疏监督的联合语义信息与几何特征的实例级别深度估计<ul>
+<li>每个像素的深度都无差别对待，但是位于目标中的像素比位于背景中的像素要少得多，较低的平均误差不代表目标中的像素深度估计准确</li>
+<li>越远的区域误差越大</li>
+</ul>
+</li>
+</ul>
+<h3 id="方法思路-1"><a href="#方法思路-1" class="headerlink" title="方法思路"></a>方法思路</h3><h4 id="模型总览"><a href="#模型总览" class="headerlink" title="模型总览"></a>模型总览</h4><p><img src="MonoGRNet.png" alt="image-20200225160526383"></p>
+<h4 id="问题定义"><a href="#问题定义" class="headerlink" title="问题定义"></a>问题定义</h4><p>给定单目RGB图像，求3DD空间内指定类型目标的定位位置，目标用一个class label和一个ABBox-3D来表示。</p>
+<ul>
+<li><p>ABBox-3D：<script type="math/tex">\mathbf{C}=(X_c, Y_c, Z_c)</script>，在相机坐标系内的坐标</p>
+</li>
+<li><p>八个局部顶点为<script type="math/tex">\mathcal{O}=\{\mathbf{O}_k\}, k=1,\dots,8</script>，以中心点为原点的坐标系中的相对坐标</p>
+</li>
+<li>拆分成几个任务<ul>
+<li>2D box <script type="math/tex">B_{2d}</script>，中心<script type="math/tex">\mathbf{b}</script>, 大小<script type="math/tex">(w,h)</script>，是检测到的ABBox-3D的投影</li>
+<li>3D中心<script type="math/tex">\mathbf{C}</script>，通过2D中心<script type="math/tex">\mathbf{c}</script>和其预测的深度值<script type="math/tex">Z_c</script>的投影得到</li>
+<li>局部定义点<script type="math/tex">\mathcal{O}</script></li>
+</ul>
+</li>
+<li><script type="math/tex; mode=display">B_{3d}=(B_{2d}, Z_c, \mathbf{c}, \mathcal{O})</script></li>
+</ul>
+<h4 id="2D检测"><a href="#2D检测" class="headerlink" title="2D检测"></a>2D检测</h4><p>（这里提到的这个设计我还没有具体地去了解）</p>
+<p>使用了Teichmann et al. 2016中的检测组件设计，其中结合了Redmon et al. 2016中的快速回归和与size相适应的RoiAlign（He et al. 2017）来达到准确率与速度的合理平衡。输入图像会被分为<script type="math/tex">S_x\times S_y</script>的网格<script type="math/tex">\mathcal{G}</script>，其中每一个格子用<script type="math/tex">\mathbf{g}</script>表示。输出的feature map和网格规模一样，每一个像素对应着一个cell会产生一个预测，其中包括该区域是否存在目标的置信度以及该目标的2Dbbox的回归即<script type="math/tex">(P\hat r^{\mathbf{g}}_{2d}, B^{mathbf{g}}_{2d})</script>。在对预测的2Dbbox利用RoiAlign层提取高分辨率的早期特征对预测结果进行优化。</p>
+<h4 id="实例级深度检测"><a href="#实例级深度检测" class="headerlink" title="实例级深度检测"></a>实例级深度检测</h4><p>IDE子网对已经分好的网格<script type="math/tex">\mathcal{G}</script>中点每个格子预测在距离阈值<script type="math/tex">\sigma_{scope}</script>范围内最近的一个实例的3D中心深度；而在refinement阶段只要把2Dbbox中心占据的那个区域的编码深度特征抽取出来就可以了。然后还对浅层的feature map(分辨率更高，感受野更小)中包含实例的区域回归了一个稀疏的小的深度偏移<script type="math/tex">\delta_{Z_c}</script>来refine深层的结果<script type="math/tex">Z_c=Z_{cc}+\delta_{Z_c}</script></p>
+<p><img src="monogrnet_depth.png" alt="image-20200225185658497"></p>
+<h4 id="3D位置估计"><a href="#3D位置估计" class="headerlink" title="3D位置估计"></a>3D位置估计</h4><p>除了一般的2D+depth到3D反投影之外，还加上了一个用深层特征回归的offset<script type="math/tex">\delta_{\mathbf{c}}=\delta_{x_c},\delta_{y_c}</script></p>
+<h4 id="3D-Box顶点回归"><a href="#3D-Box顶点回归" class="headerlink" title="3D Box顶点回归"></a>3D Box顶点回归</h4><p>在浅层（早期）feature maps上预测出2dbbox对应的</p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="http://huangyangyi.github.io">Huang Yangyi</a>
+            <p>原文链接：<a href="http://huangyangyi.github.io/2020/02/25/mono3D/">http://huangyangyi.github.io/2020/02/25/mono3D/</a>
+            <p>发表日期：<a href="http://huangyangyi.github.io/2020/02/25/mono3D/">February 25th 2020, 10:41:00 pm</a>
+            <p>更新日期：<a href="http://huangyangyi.github.io/2020/02/25/mono3D/">April 6th 2020, 5:42:56 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2020/03/11/compiler/" title= "Lecture Notes -- Compile Principle and Technology (Updating)">
+                    <div class="nextTitle">Lecture Notes -- Compile Principle and Technology (Updating)</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2020/01/21/cdq-thesis/" title= "NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】">
+                    <div class="prevTitle">NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:HuangYangyi@zju.edu.cn" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/huangyangyi" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#单目3D目标检测论文笔记"><span class="toc-number">1.</span> <span class="toc-text">单目3D目标检测论文笔记</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Pseudo-LiDAR-from-Visual-Depth-Estimation"><span class="toc-number">1.1.</span> <span class="toc-text">Pseudo-LiDAR from Visual Depth Estimation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-number">1.1.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#相关工作"><span class="toc-number">1.1.2.</span> <span class="toc-text">相关工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用LiDAR和Vision做3D检测的异同点"><span class="toc-number">1.1.3.</span> <span class="toc-text">用LiDAR和Vision做3D检测的异同点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LiDAR"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">LiDAR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Vision"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">Vision</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#方法思路"><span class="toc-number">1.1.4.</span> <span class="toc-text">方法思路</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pipeline"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">Pipeline</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#深度检测"><span class="toc-number">1.1.4.2.</span> <span class="toc-text">深度检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#生成Pseudo-LiDAR信号"><span class="toc-number">1.1.4.3.</span> <span class="toc-text">生成Pseudo-LiDAR信号</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LiDAR和pseudo-LiDAR的异同"><span class="toc-number">1.1.4.4.</span> <span class="toc-text">LiDAR和pseudo-LiDAR的异同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3D目标检测"><span class="toc-number">1.1.4.5.</span> <span class="toc-text">3D目标检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据表示方式的重要性"><span class="toc-number">1.1.4.6.</span> <span class="toc-text">数据表示方式的重要性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验"><span class="toc-number">1.2.</span> <span class="toc-text">实验</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#实验结果"><span class="toc-number">1.2.0.1.</span> <span class="toc-text">实验结果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Future-work"><span class="toc-number">1.2.1.</span> <span class="toc-text">Future work</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MonoGRNet-A-Geometric-Reasoning-Network-for-Monocular-3D-Object-Localization"><span class="toc-number">1.3.</span> <span class="toc-text">MonoGRNet: A Geometric Reasoning Network for Monocular 3D Object Localization</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述-1"><span class="toc-number">1.3.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主要贡献"><span class="toc-number">1.3.2.</span> <span class="toc-text">主要贡献</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#相关工作-1"><span class="toc-number">1.3.3.</span> <span class="toc-text">相关工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#方法思路-1"><span class="toc-number">1.3.4.</span> <span class="toc-text">方法思路</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#模型总览"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">模型总览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题定义"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">问题定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2D检测"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">2D检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#实例级深度检测"><span class="toc-number">1.3.4.4.</span> <span class="toc-text">实例级深度检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3D位置估计"><span class="toc-number">1.3.4.5.</span> <span class="toc-text">3D位置估计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3D-Box顶点回归"><span class="toc-number">1.3.4.6.</span> <span class="toc-text">3D Box顶点回归</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 5
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/05</span><a class="archive-post-title" href= "/2020/04/05/nms/" >Bounding Box Regression with Uncertainty for Accurate Object Detection</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/11</span><a class="archive-post-title" href= "/2020/03/11/compiler/" >Lecture Notes -- Compile Principle and Technology (Updating)</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/25</span><a class="archive-post-title" href= "/2020/02/25/mono3D/" >单目3D目标检测论文笔记</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href= "/2020/01/21/cdq-thesis/" >NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/2020/01/13/cvnote/" >计算机视觉 期末速成笔记</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="编译原理"><span class="iconfont-archer">&#xe606;</span>编译原理</span>
+    
+        <span class="sidebar-tag-name" data-tags="Computer Vision"><span class="iconfont-archer">&#xe606;</span>Computer Vision</span>
+    
+        <span class="sidebar-tag-name" data-tags="Natural Language Processing"><span class="iconfont-archer">&#xe606;</span>Natural Language Processing</span>
+    
+        <span class="sidebar-tag-name" data-tags="Deep Learning"><span class="iconfont-archer">&#xe606;</span>Deep Learning</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="课程笔记"><span class="iconfont-archer">&#xe60a;</span>课程笔记</span>
+    
+        <span class="sidebar-category-name" data-categories="论文笔记"><span class="iconfont-archer">&#xe60a;</span>论文笔记</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "Huang Yangyi"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

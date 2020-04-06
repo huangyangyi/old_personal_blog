@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="Huang Yangyi">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Huang Yangyi">
+    
+    <meta name="keywords" content="hexo,hexo-blog">
+    
+    <meta name="description" content="An underguaduate student of ZJU, majoring in CS">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】 · huangyangyi&#39;s Blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon-hyy.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >huangyangyi&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>huangyangyi's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Natural Language Processing">Natural Language Processing</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Deep Learning">Deep Learning</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">3.7k</span>Reading time: <span class="post-count reading-time">13 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2020/01/21</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p> 最近想要了解一下NLP的研究，决定先来读一下Danqi Chen老师的博士论文，做一个笔记啥的。</p>
+</blockquote>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><ul>
+<li>阅读理解问题：怎么构建能够阅读一篇文字且能回答相关的理解性问题的系统<ul>
+<li>可用于衡量机器对人类语言理解程度</li>
+<li>这样的系统可应用于QA或者对话系统</li>
+</ul>
+</li>
+<li>这篇文章讲的都是neural的方法</li>
+<li>两部分：<ol>
+<li>涵盖神经阅读理解的本质，介绍自己这方面的work；了解模型实际上学到了什么，解决当前问题需要多大的理解深度；对该领域做了总结和展望。</li>
+<li>如何在其基础上构建实际应用，一是与信息检索结合搞大规模开放领域QA系统的DrQA；二是从当前单轮的span-based的阅读理解模型构建对话问答系统的CoQA。</li>
+</ol>
+</li>
+</ul>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><ul>
+<li>文本理解的几个任务<ul>
+<li>part-of-speech tagging 词性标注</li>
+<li>named entity recognition (NER)命名实体识别</li>
+<li>syntactic parsing 句性分析（语法结构，词间关系等）</li>
+<li>coreference resolution指称关系解析</li>
+</ul>
+</li>
+<li>阅读理解任务可以衡量更深层次的自然语言理解程度；1970s已经被意识到，但是最近才有比较大的进展；主要是得益于大规模监督数据集和神经阅读理解模型</li>
+<li>主题1基础：现代神经阅读理解的本质：问题的形成、系统的构建模块和关键部分、哪些方面可以超越哪些方面依然落后</li>
+<li>主题2应用：高性能阅读理解系统在QA和对话系统中应用</li>
+<li>contributions:<ul>
+<li>==Stanford Attentive Reader==模型</li>
+<li>学到了什么，理解的深度：与传统的基于特征的分类器相比，神经网络模型更加擅长词汇匹配和释义，但是系统推理能力现在仍有限</li>
+<li>将神经阅读理解作为开放领域QA核心部分的研究方向，在DRQA中实现了这一想法</li>
+<li>着手解决会话问题的回答，提出了COQA挑战</li>
+</ul>
+</li>
+</ul>
+<h1 id="An-Overview-of-Reading-Comprehension"><a href="#An-Overview-of-Reading-Comprehension" class="headerlink" title="An Overview of Reading Comprehension"></a>An Overview of Reading Comprehension</h1><h2 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h2><h3 id="早期系统"><a href="#早期系统" class="headerlink" title="早期系统"></a>早期系统</h3><ul>
+<li>1970s开始意识到这个任务的重要性</li>
+<li>QUANLM, Lenhnert(1977)，在脚本和计划上建模人类故事的理解；设计了一个问答理论，专注于现实问题以及上下文对回答问题的重要性；系统较小，受限于手动编写的脚本，很难泛用到其他领域。</li>
+<li>1990s末，Hirschman等设计了一个阅读理解数据集，ANLP/NAACL在2000年举办了一个阅读理解相关的workshop；数据集由60个故事作为训练集，60个作为测试集组成，要求回答who what when where why的问题，只需要返回包含正确答案的句子。这一阶段的系统主要有基于规则的词袋方法+浅层语言处理（stemming, 语义类识别和代词解析）的Deep Read，以及使用手动生成的基于词汇和语义的对应关系的规则的Quarc系统或者两者的混合；取得了30%~40%的accuracy。</li>
+</ul>
+<h3 id="机器学习的方法"><a href="#机器学习的方法" class="headerlink" title="机器学习的方法"></a>机器学习的方法</h3><ul>
+<li>2013-2015，开始将阅读理解规范化为一个监督学习问题：样本形式为三元组<script type="math/tex">(passage, question, answer)</script>；让统计模型学习一个由段落和问题到答案的映射<script type="math/tex">f:(passage, question)\rightarrow answer</script>.</li>
+<li>两个该时期的数据集: <ul>
+<li>MCTest: 660个故事, 每个故事4个4项单选题<ul>
+<li>原paper中提出了几个基于规则的, 不利用训练数据的baselines:<ol>
+<li>启发式滑窗: 度量问题、答案和窗口单词之间的带权重叠overlap或距离信息</li>
+<li>将每一对问题答案转换成一个语句来跑一个现成的文本蕴含系统（使用前提与假设之间的蕴含关系您行推理）</li>
+</ol>
+</li>
+<li>后来的模型大多建立在max-margin学习框架上，使用了丰富的人工设计的语言特征如语法依赖、语义框架、指称关系解析、话语关系和词嵌入；在MC500 portion上表现从63%提升到了70%</li>
+</ul>
+</li>
+<li>ProcessBank: 根据描述生物过程的段落回答二选一问题, 要求理解过程中实体与事件的关系, 200个段落585个问题<ul>
+<li>原论文中使用了一个统计学习模型，首先预测过程的结构，然后把问题映射到能够用该结构执行的正式查询，66.7%的准确率。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="深度学习的方法"><a href="#深度学习的方法" class="headerlink" title="深度学习的方法"></a>深度学习的方法</h3><ul>
+<li>2015年，DeepMind的Hermann等人提出了一个创建学习阅读理解模型的大规模监督训练数据集的解决方案，也提出了一个NN模型——一个基于注意力机制的LSTM模型叫The Attentive Reader，这个模型很大程度上优于符号化的NLP方法（在CNN数据集上取得63.8%，符号化系统取得最高50.9%）<ul>
+<li>构建数据集的方法：CNN(指的是fake news的那个CNN)和每日邮报附带了一些要点，将这些要点的实体用抽象的标记表示，在文章中用占位符替换这些实体然后形成一个完形填空式问题；这样可以几乎零成本地生成大量样本</li>
+</ul>
+</li>
+<li>2016年，CDQ老师发现了这个CNN数据集，他们的The Stanford Attentive Reader取得了72.4%的成绩<ul>
+<li>再识别词汇匹配和释义上比传统的基于特征的分类器更好</li>
+<li>得出了数据集由于创建方式和指称上的错误似乎有噪声，有局限性的结论</li>
+</ul>
+</li>
+<li>对此Rajpurkar等在2016收集了The Stanford Question Answering Dataset（SQUAD），由536篇wiki文章中的107785对问答组成，由大众工作者提出，每个问题的答案都是相应阅读文章的文本；这是第一个大规模自然语言阅读理解数据集，表现最好的取得了91.8%的F1值，超过了人类(91.2%)</li>
+</ul>
+<ul>
+<li>目前在SQUAD上表现好的系统都是端到端模型或者深度学习模型，这些模型一般把文章和问题中的每个单词表示为一个密集的向量，经过几个建模或者交互层，最后得到预测；这些模型被叫做神经阅读理解模型，下面是他们的一些优势：<ul>
+<li>不依赖于下游的语言特性（比如依赖解析、指称解析）把所有特性放在端到端框架立独立学习，避免语言注释里的噪音，再利用特征上更加灵活</li>
+<li>传统符号化NLP系统特征过于稀疏，泛化能力差；利用低维的密集词嵌入向量，再共享相似词之间的统计强度，可以缓解特征系数的问题</li>
+<li>不需要手工构造大量的特征，专注于设计神经网络架构即可</li>
+</ul>
+</li>
+<li>SQUAD毕竟是个简单的任务，也有局限性</li>
+<li>其他的一些数据集:TRIVIAQA (Joshi et al ., 2017)，RACE(Lai et al ., 2017)，QANGAROO (Welbl et al ., 2018)，NARRATIVEQA (Kocisky et al)，MULTIRC (Khashabi et al.，2018)、SQuAD 2.0 (Rajpurkar et al.，2018)、HOTPOTQA (Yang et al.，2018)；其中包括独立于段落的问题、需要多个句子或文档回答的问题、基于长文档的问题或不能从文章回答的问题；其中大部分还没有解决</li>
+</ul>
+<h2 id="任务的定义"><a href="#任务的定义" class="headerlink" title="任务的定义"></a>任务的定义</h2><h3 id="问题公式化描述"><a href="#问题公式化描述" class="headerlink" title="问题公式化描述"></a>问题公式化描述</h3><p>可以把阅读理解任务公式化为一个监督学习问题：给定一组训练样本<script type="math/tex">\{(p_i, q_i, a_i)\}^n_{i=1}</script>，目标为学习一个预测器<script type="math/tex">f</script>以一段文字<script type="math/tex">p</script>和对应的问题<script type="math/tex">q</script>作为输入，以答案$a$作为输出。</p>
+<script type="math/tex; mode=display">f:(p,q)\rightarrow a</script><p>令<script type="math/tex">p=(p_1,p_2,...,p_{l_p}),\ q=(q_1,q_2,...,q_{l_q})</script>, <script type="math/tex">l_p,\ l_q</script>分别为文章和问题长度，<script type="math/tex">\forall p_i, p_i\in\mathcal{V}</script>,<script type="math/tex">\forall q_i, q_i\in\mathcal{V}</script> , <script type="math/tex">\mathcal{V}</script>是预定义的词典；这里不妨只考虑一段的情况。</p>
+<p>不同类型的答案对应着不同形式的<script type="math/tex">a</script>，我们大致可以将现在的阅读理解任务分为四类：</p>
+<ol>
+<li>Cloze style 完形填空：从一个预定义的<script type="math/tex">\mathcal{A}</script>或者整个<script type="math/tex">\mathcal{V}</script>中选择</li>
+<li>Multiple choice 选择题：<script type="math/tex">\mathcal{A}=\{a_1,...,a_k\}\ \text{where}\ a_k=(a_{k,1}, a_{k,2}, ..., a_{k, l_{a,k}}),\ a_{k,i}\in \mathcal{V}</script></li>
+<li>Span prediction 范围预测：也叫做提取QA任务, 答案必须是文章中的一个范围, 可以被表示为<script type="math/tex">(a_{start}, a_{end}), 其中1\leq a_{start} \leq a_{end} \leq l_p</script>, 答案字符串与<script type="math/tex">p_{a_{start}},\dots, p_{a_{end}}</script>相对应</li>
+<li>Free-form answer自由形式回答：<script type="math/tex">a\in\mathcal{V}^*</script></li>
+</ol>
+<p><img src="datasets1.png" alt="image-20200121235359795" title="刚才说到的一些数据集(1)" style="zoom: 60%;" /><br><img src="datasets2.png" alt="image-20200121235359795" title="刚才说到的一些数据集(2)" style="zoom: 60%;" /></p>
+<p><center>刚才说到的一些任务形式</center></p>
+<h3 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h3><ul>
+<li>对于单选题与完型填空题, 只要用普通意义上的准确率即可评估</li>
+<li><p>对于范围预测span prediction:</p>
+<ul>
+<li>Exact match(EM) 如果完全符合则1.0, 否则0.0</li>
+<li>F1 score 计算预测答案与实际答案之间的平均单词重叠, 其中这两个答案被当作词袋处理:<script type="math/tex">F1=\frac{2\times\mathrm{Precision}\times\mathrm{Recall}}{\mathrm{Precision}+\mathrm{Recall}}</script></li>
+</ul>
+</li>
+<li><p>free-form answer没有统一的评估标准; 常见的方法是在自然语言生成任务中(如翻译, 概述)使用标准的评估指标, 包括BLEU, Meteor, ROUGE.</p>
+</li>
+</ul>
+<h3 id="阅读理解-vs-QA"><a href="#阅读理解-vs-QA" class="headerlink" title="阅读理解 vs. QA"></a>阅读理解 vs. QA</h3><p>阅读理解和QA之间的关系很紧密, 可以把阅读理解看作QA的一个实例因为它本质上是一个建立在一小篇文本上的QA问题; 但是两者的最终目标所强调的东西不同</p>
+<ul>
+<li>QA问题的最终目标是构建能够自动回答人类提出的问题的计算机系统, 不管他们基于什么样的来源. 大部分QA的工作都研究以下几件事情:<ul>
+<li>如何搜索并识别相关的资源</li>
+<li>如何从不同的信息片中整合出答案</li>
+<li>学习人们在现实中常常问到的问题种类</li>
+</ul>
+</li>
+<li>阅读理解则更加强调对文本的理解，回答问题只是一种衡量语言理解的方式<ul>
+<li>因此早期工作（Lehnert, 1977）主要集中于虚构故事，这样所有答案都来自于文章本身而不是外部的知识</li>
+<li>问题被设计为测试文本理解的不同方面</li>
+</ul>
+</li>
+<li><p>两者中的问题的区别类似于使用搜索引擎与完成阅读测试</p>
+</li>
+<li><p><strong>micro-reading</strong>: 专注于对单个文档的完整信息内容的提取</p>
+</li>
+<li><strong>macro-reading</strong>：专注于对一个大的文本集，抽取这些文本所表示的事实的集合，同时不需要提取每一个单独的事实；</li>
+<li>macro-reading重点分析文本中的简单措辞以利用文档间的信息冗余，而micro-reading（原文中好像有误）考察更深层次的语言理解</li>
+</ul>
+<h2 id="数据集与模型"><a href="#数据集与模型" class="headerlink" title="数据集与模型"></a>数据集与模型</h2><p>阅读理解的最近进展主要得益于大规模阅读理解数据集的建立与端到端神经阅读理解模型</p>
+<ul>
+<li>大规模数据集使得训练神经模型成为可能，激发了一系列建模创新。</li>
+<li>理解现有模型的性能进一步有助于识别现有数据集的局限性。这促使我们寻求更好的方法来构建更具挑战性的数据集，以实现机器理解文本的最终目标。</li>
+</ul>
+<p><img src="datasets&models.png" alt="image-20200130113511075" style="zoom:50%;" /></p>
+<h1 id="Neural-Reading-Comprehension-Models"><a href="#Neural-Reading-Comprehension-Models" class="headerlink" title="Neural Reading Comprehension Models"></a>Neural Reading Comprehension Models</h1><h2 id="先前的方法：基于特征的模型"><a href="#先前的方法：基于特征的模型" class="headerlink" title="先前的方法：基于特征的模型"></a>先前的方法：基于特征的模型</h2><p>首先介绍一下作者团队在2016年做的一个强基于特征的模型，用于解决CNN/Daily Mail数据集完形填空问题的模型。对于完形填空问题来说，问题被公式化未预测一个正确的实体<script type="math/tex">a\in\mathcal{E}</script>，使其能够填进基于文章<script type="math/tex">p</script>的问题<script type="math/tex">q</script>中，其中<script type="math/tex">\mathcal{E}</script>表示候选实体集合。传统的线性基于特征的分类器一般需要对每一个候选实体<script type="math/tex">e\in\mathcal{E}</script>构建一个特征向量<script type="math/tex">f_{p,q}(e)\in\mathbb{R}^d</script>，然后学习一个权重向量<script type="math/tex">\mathrm{w}\in\mathbb{R}^d</script>使得正确答案<script type="math/tex">a</script>期望能够比其他的候选实体排名更高：</p>
+<script type="math/tex; mode=display">\mathrm{w}^Tf_{p,q}(a)>\mathrm{w}^Tf_{p,q}(e),\ \forall e\in\mathcal{E} \backslash \{a\}</script><p>当所有实体都构建好了特征向量之后，就可以在这上面应用流行的机器学习算法比如SVM、逻辑回归。作者团队使用了LambdaMART模型（一个基于决策树森林，适用于许多排序场景的模型）。</p>
+<p>剩下的一个关键问题在于怎么构建有用的特征向量，下面是作者团队使用的特征：</p>
+<ol>
+<li>实体是否出现在文章中</li>
+<li>实体是否出现在问题中</li>
+<li>实体在文章中出现的频率</li>
+<li>实体在文章出首次出现的位置</li>
+<li>单词距离：将占位符与每次实体出现的位置对齐，然后计算每个非停止词的问题单词与文章中的实体的平均最小距离</li>
+<li>句子共现：该实体是否与问题中的另一个实体或动词在文章中的某个句子中共现</li>
+<li><script type="math/tex">n</script>-gram 完全匹配：占位符前后的文本与实体前后的文本是否存在完全匹配；作者团队把对所有左边和/或右边一到两个词的组合都放到了特征里</li>
+<li>依赖解析匹配：对问题和文章中的所有句子进行了依赖解析，然后提取了一个指标特征：<script type="math/tex">w\overset{r}\rightarrow</script>@placeholder和<script type="math/tex">w\overset{r}\rightarrow e</script>是否被同时找到；与此类似关于@placeholder<script type="math/tex">\overset{r}\rightarrow w</script>和<script type="math/tex">e\overset{r}\rightarrow w</script>的特征也被提取出来。</li>
+</ol>
+<ul>
+<li>对于非神经模型来说，如何构造一组有用的特征是一个难题</li>
+<li>可以发现其中的一些特征是依赖于语言工具的，这也会是模型更加昂贵，最终性能也取决于这些注释的准确性</li>
+</ul>
+<p>然后提到了Rajpurkar等人和Joshi等人构建的一些类似的基于特征的模型。</p>
+<h2 id="一种神经模型的方法：The-Stanford-Attentive-Reader"><a href="#一种神经模型的方法：The-Stanford-Attentive-Reader" class="headerlink" title="一种神经模型的方法：The Stanford Attentive Reader"></a>一种神经模型的方法：The Stanford Attentive Reader</h2><h3 id="Preliminaries"><a href="#Preliminaries" class="headerlink" title="Preliminaries"></a>Preliminaries</h3><p>关于现代神经NLP模型的一些基本的idea</p>
+<h4 id="词嵌入Word-embeddings"><a href="#词嵌入Word-embeddings" class="headerlink" title="词嵌入Word embeddings"></a>词嵌入Word embeddings</h4><ul>
+<li>把词语表示为低维（比如300维）的实值向量</li>
+<li>在深度学习之前，一般把词语表示为词库中的一个index，即one-hot编码，如：<script type="math/tex">\mathrm{v_{car}}=[0,0,...,0,0,1,0,...,0]^T</script><ul>
+<li>使用one-hot编码这样的稀疏向量的最大问题在于不能共享单词之间的语义相似度，任何不同的词语之间的都是正交的</li>
+</ul>
+</li>
+<li>而低维的词嵌入表示方式能够把相似的词语编码为几何空间里的相似的向量：<script type="math/tex">\mathrm{cos(v_{car},v_{vehicle})<cos(v_{car},v_{man})}</script></li>
+<li>词嵌入可以从大型的unlabeled文本语料库中学习得到，基于假设在相似的内容中出现的词语应该有相似的含义（又叫the distributional hypothesis）</li>
+<li>预训练的词嵌入：Word2Vec、GLOVE、FASTTEXT</li>
+</ul>
+<h4 id="循环神经网络-RNN"><a href="#循环神经网络-RNN" class="headerlink" title="循环神经网络 RNN"></a>循环神经网络 RNN</h4><ul>
+<li><p>RNN是一种能够处理变长序列的神经网络</p>
+</li>
+<li><p>会循环地将一个带参函数应用到序列<script type="math/tex">\mathrm{x}_1,\dots,\mathrm{x}_n</script>上：<script type="math/tex">\mathrm{h}_t=f(\mathrm{h}_{t-1},\mathrm{x}_t;\Theta)</script></p>
+</li>
+<li><p>对于NLP来说，我们用一个词向量序列来表示句子或者段落：<script type="math/tex">\mathrm{x}=\mathrm{x}_1,\mathrm{x}_2,...,\mathrm{x}_n\in\mathbb{R}^d</script>且<script type="math/tex">\mathrm{h}_t\in\mathbb{R}^h</script>能够被用来对<script type="math/tex">\mathrm{x}_{1:t}</script>中的内容信息建模</p>
+</li>
+<li><p>Vanilla RNNs: <script type="math/tex">\mathrm{h}_t=\mathrm{tanh}(\mathrm{W}^{hh}\mathrm{h}_{t-1}+\mathrm{W}^{hx}\mathrm{x}_t+\mathrm{b})</script></p>
+<ul>
+<li>其中<script type="math/tex">\mathrm{W}^{hh}\in\mathbb{R}^{h\times h},\mathrm{W}^{hx}\in\mathbb{R}^{h\times d}, \mathrm{b}\in\mathbb{R}^h</script>是需要学习的参数</li>
+</ul>
+</li>
+<li><p>为了简化优化过程，有很多RNN的变体，比如长短时记忆网络LSTM和门控循环单元GRU</p>
+</li>
+<li><p>LSTM的公式化表示：</p>
+<p><img src="LSTM.png" alt="image-20200202160626092" style="zoom:67%;" /></p>
+</li>
+</ul>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="http://huangyangyi.github.io">Huang Yangyi</a>
+            <p>原文链接：<a href="http://huangyangyi.github.io/2020/01/21/cdq-thesis/">http://huangyangyi.github.io/2020/01/21/cdq-thesis/</a>
+            <p>发表日期：<a href="http://huangyangyi.github.io/2020/01/21/cdq-thesis/">January 21st 2020, 10:54:12 pm</a>
+            <p>更新日期：<a href="http://huangyangyi.github.io/2020/01/21/cdq-thesis/">April 6th 2020, 5:40:36 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2020/02/25/mono3D/" title= "单目3D目标检测论文笔记">
+                    <div class="nextTitle">单目3D目标检测论文笔记</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2020/01/13/cvnote/" title= "计算机视觉 期末速成笔记">
+                    <div class="prevTitle">计算机视觉 期末速成笔记</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:HuangYangyi@zju.edu.cn" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/huangyangyi" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Abstract"><span class="toc-number">1.</span> <span class="toc-text">Abstract</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-number">2.</span> <span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#An-Overview-of-Reading-Comprehension"><span class="toc-number">3.</span> <span class="toc-text">An Overview of Reading Comprehension</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#历史"><span class="toc-number">3.1.</span> <span class="toc-text">历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#早期系统"><span class="toc-number">3.1.1.</span> <span class="toc-text">早期系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机器学习的方法"><span class="toc-number">3.1.2.</span> <span class="toc-text">机器学习的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#深度学习的方法"><span class="toc-number">3.1.3.</span> <span class="toc-text">深度学习的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务的定义"><span class="toc-number">3.2.</span> <span class="toc-text">任务的定义</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题公式化描述"><span class="toc-number">3.2.1.</span> <span class="toc-text">问题公式化描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#评估"><span class="toc-number">3.2.2.</span> <span class="toc-text">评估</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阅读理解-vs-QA"><span class="toc-number">3.2.3.</span> <span class="toc-text">阅读理解 vs. QA</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据集与模型"><span class="toc-number">3.3.</span> <span class="toc-text">数据集与模型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Neural-Reading-Comprehension-Models"><span class="toc-number">4.</span> <span class="toc-text">Neural Reading Comprehension Models</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#先前的方法：基于特征的模型"><span class="toc-number">4.1.</span> <span class="toc-text">先前的方法：基于特征的模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一种神经模型的方法：The-Stanford-Attentive-Reader"><span class="toc-number">4.2.</span> <span class="toc-text">一种神经模型的方法：The Stanford Attentive Reader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Preliminaries"><span class="toc-number">4.2.1.</span> <span class="toc-text">Preliminaries</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#词嵌入Word-embeddings"><span class="toc-number">4.2.1.1.</span> <span class="toc-text">词嵌入Word embeddings</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#循环神经网络-RNN"><span class="toc-number">4.2.1.2.</span> <span class="toc-text">循环神经网络 RNN</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 5
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2020 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/05</span><a class="archive-post-title" href= "/2020/04/05/nms/" >Bounding Box Regression with Uncertainty for Accurate Object Detection</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/11</span><a class="archive-post-title" href= "/2020/03/11/compiler/" >Lecture Notes -- Compile Principle and Technology (Updating)</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/25</span><a class="archive-post-title" href= "/2020/02/25/mono3D/" >单目3D目标检测论文笔记</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href= "/2020/01/21/cdq-thesis/" >NEURAL READING COMPREHENSION AND BEYOND 论文笔记【待填】</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href= "/2020/01/13/cvnote/" >计算机视觉 期末速成笔记</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="编译原理"><span class="iconfont-archer">&#xe606;</span>编译原理</span>
+    
+        <span class="sidebar-tag-name" data-tags="Computer Vision"><span class="iconfont-archer">&#xe606;</span>Computer Vision</span>
+    
+        <span class="sidebar-tag-name" data-tags="Natural Language Processing"><span class="iconfont-archer">&#xe606;</span>Natural Language Processing</span>
+    
+        <span class="sidebar-tag-name" data-tags="Deep Learning"><span class="iconfont-archer">&#xe606;</span>Deep Learning</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="课程笔记"><span class="iconfont-archer">&#xe60a;</span>课程笔记</span>
+    
+        <span class="sidebar-category-name" data-categories="论文笔记"><span class="iconfont-archer">&#xe60a;</span>论文笔记</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "Huang Yangyi"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
