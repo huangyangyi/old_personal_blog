@@ -427,7 +427,7 @@ height:50vh;
 <script type="math/tex; mode=display">P_D(x)=\delta(x-x_g)</script><h2 id="KL-Loss"><a href="#KL-Loss" class="headerlink" title="KL Loss"></a>KL Loss</h2><p>确定了预测的任务之后，作者进一步规定了目标：最小化<script type="math/tex">P_\Theta(x)与P_D(x)</script>的KL散度，即：</p>
 <script type="math/tex; mode=display">\hat\Theta=\arg\min_{\Theta}\frac{1}{N}\sum D_{KL}(P_D(x)||P_\Theta(x))</script><p>定义损失函数<script type="math/tex">L_{reg}</script>为<script type="math/tex">D_{KL}(P_D(x)||P_\Theta(x))</script>，展开后可得：</p>
 <script type="math/tex; mode=display">L_{reg}\propto\frac{(x_g-x_e)^2}{2\sigma^2}+\frac{1}{2}log(\sigma^2)</script><p>因为对<script type="math/tex">\sigma</script>微分后有分母中含<script type="math/tex">\sigma</script>的项，为了避免梯度爆炸，选用<script type="math/tex">\alpha=\log(\sigma^2)</script>替代，<strong>在测试时则仍然使用<script type="math/tex">\sigma</script></strong>：</p>
-<script type="math/tex; mode=display">L_{reg}=e^{-\alpha}(|x_g-x_e|-1/2)+\alpha/2\ \ (当|x_g-x_e|>1时)</script><p>实现细节：预测<script type="math/tex">\alpha</script>的全连接层用高斯随机初始化，方差和均值设为0.0001和0，所以KL-Loss在训练初期与L1 loss相似。</p>
+<script type="math/tex; mode=display">L_{reg}=e^{-\alpha}(|x_g-x_e|-1/2)+\alpha/2\ \ (当|x_g-x_e|>1时)</script><script type="math/tex; mode=display">L_{reg}=\frac{(x_g-x_e)^2}{2\sigma^2}+\alpha/2\ \ (当|x_g-x_e|\leq1时)</script><p>实现细节：预测<script type="math/tex">\alpha</script>的全连接层用高斯随机初始化，方差和均值设为0.0001和0，所以KL-Loss在训练初期与L1 loss相似。</p>
 <p>官方的实现在<a href="https://github.com/yihui-he/KL-Loss/blob/master/detectron/modeling/fast_rcnn_heads.py#L110" target="_blank" rel="noopener">https://github.com/yihui-he/KL-Loss/blob/master/detectron/modeling/fast_rcnn_heads.py#L110</a> </p>
 <p>PyTorch实现：<a href="https://github.com/wlguan/Stronger-yolo-pytorch/blob/b4f8d416f296d06fb2a5290fc3e7decf0b03fb0b/models/strongerv3kl.py#L99" target="_blank" rel="noopener">https://github.com/wlguan/Stronger-yolo-pytorch/blob/b4f8d416f296d06fb2a5290fc3e7decf0b03fb0b/models/strongerv3kl.py#L99</a></p>
 <h2 id="Variance-voting"><a href="#Variance-voting" class="headerlink" title="Variance voting"></a>Variance voting</h2><p>核心思想是利用学到的每个bbox的方差，以及IoU的大小作为加权，使用邻域的候选框更新当前选中框的坐标：</p>
@@ -464,7 +464,7 @@ height:50vh;
             <p>Author：<a href="http://huangyangyi.github.io">Huang Yangyi</a>
             <p>原文链接：<a href="http://huangyangyi.github.io/2020/04/05/nms/">http://huangyangyi.github.io/2020/04/05/nms/</a>
             <p>发表日期：<a href="http://huangyangyi.github.io/2020/04/05/nms/">April 5th 2020, 8:00:00 pm</a>
-            <p>更新日期：<a href="http://huangyangyi.github.io/2020/04/05/nms/">April 6th 2020, 5:53:01 pm</a>
+            <p>更新日期：<a href="http://huangyangyi.github.io/2020/04/05/nms/">April 6th 2020, 6:25:03 pm</a>
             <p>版权声明：本文采用<a rel="license noopener" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
