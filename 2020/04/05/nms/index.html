@@ -414,6 +414,7 @@ height:50vh;
 <p>$f$的选取可以用（截断的）线性函数或者是高斯函数。</p>
 <p><img src="https://www.zhihu.com/equation?tex=s_i%3D%5Cbegin%7Bcases%7D++s_i%2C+%26%26+%5Ctext%7Biou%7D%28+%5Cmathcal+M%2Cb_i%29+%3C+N_t+%5C%5C+s_i%281-%5Ctext%7Biou%7D%28%5Cmathcal+M%2Cb_i%29%29%2C+%26%26+%5Ctext%7Biou%7D%28%5Cmathcal+M%2Cb_i%29%5Cge+N_t+%5Cend%7Bcases%7D%5C%5C" alt=""></p>
 <p><img src="https://www.zhihu.com/equation?tex=s_i%3Ds_ie%5E%7B-%7B%5Ctext%7Biou%7D%28%5Cmathcal+M%2Cb_i%29%5E2%7D%5Cover+%5Csigma%7D%2C%5Cforall+b_i%5Cnot+%5Cin+%5Cmathcal+D+%5C%5C" alt=""></p>
+<p>那么原版的NMS也就可以被看作<script type="math/tex">f</script>为一个取值01的Soft-NMS的特殊形式。</p>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>本文首先是由一个ground truth bounding box的ambiguity问题引出的，作者发现有的情况下由于物体的部分遮挡，有的gt bbox是不明确的，可能只是把物体出现的那一部分框出来。</p>
 <p><img src="image-20200405193915940.png" alt="image-20200405193915940"></p>
 <p>更具体而言，如果体现在预测中，classification score更高的框不一定更加精准（比如说目标的主体如果占了这个框的大部分可能分类置信度较高，但是真正包含整个目标的框反而可能分类置信度更低，所以nms中单凭分类置信度来选候选框是考虑不到这一点的）；如下图这种情况：</p>
@@ -427,7 +428,8 @@ height:50vh;
 <script type="math/tex; mode=display">P_D(x)=\delta(x-x_g)</script><h2 id="KL-Loss"><a href="#KL-Loss" class="headerlink" title="KL Loss"></a>KL Loss</h2><p>确定了预测的任务之后，作者进一步规定了目标：最小化<script type="math/tex">P_\Theta(x)与P_D(x)</script>的KL散度，即：</p>
 <script type="math/tex; mode=display">\hat\Theta=\arg\min_{\Theta}\frac{1}{N}\sum D_{KL}(P_D(x)||P_\Theta(x))</script><p>定义损失函数<script type="math/tex">L_{reg}</script>为<script type="math/tex">D_{KL}(P_D(x)||P_\Theta(x))</script>，展开后可得：</p>
 <script type="math/tex; mode=display">L_{reg}\propto\frac{(x_g-x_e)^2}{2\sigma^2}+\frac{1}{2}log(\sigma^2)</script><p>因为对<script type="math/tex">\sigma</script>微分后有分母中含<script type="math/tex">\sigma</script>的项，为了避免梯度爆炸，选用<script type="math/tex">\alpha=\log(\sigma^2)</script>替代，<strong>在测试时则仍然使用<script type="math/tex">\sigma</script></strong>：</p>
-<script type="math/tex; mode=display">L_{reg}=e^{-\alpha}(|x_g-x_e|-1/2)+\alpha/2\ \ (当|x_g-x_e|>1时)</script><script type="math/tex; mode=display">L_{reg}=\frac{(x_g-x_e)^2}{2\sigma^2}+\frac{1}{2}log(\sigma^2)\ \ (当|x_g-x_e|\leq1时)</script><p>具体修改的地方其实就是用KL Loss作为新的回归location的loss</p>
+<script type="math/tex; mode=display">L_{reg}=e^{-\alpha}(|x_g-x_e|-1/2)+\alpha/2\ \ (当|x_g-x_e|>1时)</script><script type="math/tex; mode=display">L_{reg}=\frac{(x_g-x_e)^2}{2\sigma^2}+\frac{1}{2}log(\sigma^2)\ \ (当|x_g-x_e|\leq1时)</script><p>（:shit: 其实第一项就是类似smooth L1 loss的一个东西）</p>
+<p>具体修改的地方其实就是用KL Loss作为新的回归location的loss</p>
 <p><img src="image-20200407122447596.png" alt="image-20200407122447596" style="zoom:50%;" /></p>
 <p>实现细节：预测<script type="math/tex">\alpha</script>的全连接层用高斯随机初始化，方差和均值设为0.0001和0，所以KL-Loss在训练初期与L1 loss相似。</p>
 <p>官方的实现在<a href="https://github.com/yihui-he/KL-Loss/blob/master/detectron/modeling/fast_rcnn_heads.py#L110" target="_blank" rel="noopener">https://github.com/yihui-he/KL-Loss/blob/master/detectron/modeling/fast_rcnn_heads.py#L110</a> </p>
@@ -444,7 +446,7 @@ height:50vh;
 </ol>
 <p>体现分类置信度的<script type="math/tex">S</script>并不参与到voting中，因为分类score较低的框可能会有更高的定位置信度。这一点作者以intro中的那张figure 2作为说明。</p>
 <p>官方实现：<a href="https://github.com/yihui-he/KL-Loss/blob/c2da1bb64523c0e38beb7c21d1589f6573f1c947/detectron/utils/py_cpu_nms.py#L15" target="_blank" rel="noopener">https://github.com/yihui-he/KL-Loss/blob/c2da1bb64523c0e38beb7c21d1589f6573f1c947/detectron/utils/py_cpu_nms.py#L15</a></p>
-<h2 id="Softer-NMS"><a href="#Softer-NMS" class="headerlink" title="Softer NMS"></a>Softer NMS</h2><p>这里再提一下老版的softer nms <a href="https://arxiv.org/pdf/1809.08545v1.pdf" target="_blank" rel="noopener">Softer-NMS: Rethinking Bounding Box Regression</a> ；其实和var voting的区别只是在于没有利用预测的variance，只利用了IoU大小作为加权，而且还用到了IoU阈值：</p>
+<h2 id="Softer-NMS"><a href="#Softer-NMS" class="headerlink" title="Softer NMS"></a>Softer NMS</h2><p>这里再提一下老版的softer nms <a href="https://arxiv.org/pdf/1809.08545v1.pdf" target="_blank" rel="noopener">Softer-NMS: Rethinking Bounding Box Regression</a> ；其实和var voting的区别只是在于只利用了预测的variance，没有利用IoU大小作为加权而只考虑IoU大于阈值的框：</p>
 <p><img src="image-20200406170724505.png" alt="image-20200406170724505" style="zoom:80%;" /></p>
 <h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><p>消融实验on MS-COCO，baseline为VGG16， Faster RCNN：</p>
 <p><img src="image-20200406171357503.png" alt="image-20200406171357503"></p>
@@ -466,7 +468,7 @@ height:50vh;
             <p>Author：<a href="http://huangyangyi.github.io">Huang Yangyi</a>
             <p>原文链接：<a href="http://huangyangyi.github.io/2020/04/05/nms/">http://huangyangyi.github.io/2020/04/05/nms/</a>
             <p>发表日期：<a href="http://huangyangyi.github.io/2020/04/05/nms/">April 5th 2020, 8:00:00 pm</a>
-            <p>更新日期：<a href="http://huangyangyi.github.io/2020/04/05/nms/">April 7th 2020, 12:28:54 pm</a>
+            <p>更新日期：<a href="http://huangyangyi.github.io/2020/04/05/nms/">April 8th 2020, 7:16:57 pm</a>
             <p>版权声明：本文采用<a rel="license noopener" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
